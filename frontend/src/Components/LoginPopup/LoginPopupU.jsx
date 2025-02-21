@@ -1,63 +1,54 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
-import './LoginPopup.css';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const LoginPopupU = ({ setShowLogin }) => {
-  const [isLogin, setIsLogin] = useState(true);
-  const navigate = useNavigate(); // Initialize the navigate function
+const LoginPopupU = () => {
+  const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log('User Login Submitted');
-    // Redirect to the User page after successful login
-    navigate('/user');
+    const email = e.target[0].value;
+    const password = e.target[1].value;
+
+    // Retrieve users from local storage
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    const user = users.find((user) => user.email === email && user.password === password);
+    
+    if (user) {
+      navigate('/user'); // Redirect to user page on successful login
+    } else {
+      alert('Invalid email or password');
+    }
   };
 
   const handleSignup = (e) => {
     e.preventDefault();
-    console.log('User Signup Submitted');
-    // Redirect to the User page after successful signup
-    navigate('/user');
+    const name = e.target[0].value;
+    const email = e.target[1].value;
+    const password = e.target[2].value;
+
+    // Store new user in local storage
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    users.push({ name, email, password });
+    localStorage.setItem('users', JSON.stringify(users));
+
+    navigate('/user'); // Redirect to user page after signup
   };
 
-  const loginForm = 
-  (
-    <form onSubmit={handleLogin} className="login-form">
-      <h2>User Login</h2>
-      <input type="email" required placeholder="Enter your email" />
-      <input type="password" required placeholder="Enter your password" />
-      <button type="submit" className="form-button">Login</button>
-      <p>
-        Don't have an account?{' '}
-        <span onClick={() => setIsLogin(false)} className="link1">
-          Sign up here
-        </span>
-      </p>
-    </form>
-  );
-
-  const signupForm = (
-    <form onSubmit={handleSignup} className="signup-form">
-      <h2>User Signup</h2>
-      <input type="text" required placeholder="Enter your name" />
-      <input type="email" required placeholder="Enter your email" />
-      <input type="password" required placeholder="Create a password" />
-      <button type="submit" className="form-button">Create Account</button>
-      <p>
-        Already have an account?{' '}
-        <span onClick={() => setIsLogin(true)} className="link1">
-          Login here
-        </span>
-      </p>
-    </form>
-  );
-
   return (
-    <div className="loginpopup-overlay">
-      <div className="loginpopup">
-        <button className="close-button" onClick={() => setShowLogin(false)}>✖</button>
-        {isLogin ? loginForm : signupForm}
-      </div>
+    <div>
+      <h2>User Login/Signup</h2>
+      <form onSubmit={handleLogin}>
+        <input type="email" placeholder="Email" required />
+        <input type="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+      </form>
+      <h3>Or Signup</h3>
+      <form onSubmit={handleSignup}>
+        <input type="text" placeholder="Name" required />
+        <input type="email" placeholder="Email" required />
+        <input type="password" placeholder="Password" required />
+        <button type="submit">Signup</button>
+      </form>
     </div>
   );
 };

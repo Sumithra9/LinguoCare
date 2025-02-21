@@ -1,62 +1,54 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
-import './LoginPopup.css';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const LoginPopupT = ({ setShowLogin }) => {
-  const [isLogin, setIsLogin] = useState(true);
-  const navigate = useNavigate(); // Hook to navigate to another page
+const LoginPopupT = () => {
+  const navigate = useNavigate();
 
-  // Handle Therapist login
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log('Therapist Login Submitted');
-    navigate('/therapist'); // Redirect to Therapist page on successful login
+    const email = e.target[0].value;
+    const password = e.target[1].value;
+
+    // Retrieve therapists from local storage
+    const therapists = JSON.parse(localStorage.getItem('therapists')) || [];
+    const therapist = therapists.find((therapist) => therapist.email === email && therapist.password === password);
+    
+    if (therapist) {
+      navigate('/therapist'); // Redirect to therapist page on successful login
+    } else {
+      alert('Invalid email or password');
+    }
   };
 
-  // Handle Therapist signup
   const handleSignup = (e) => {
     e.preventDefault();
-    console.log('Therapist Signup Submitted');
-    navigate('/therapist'); // Redirect to Therapist page on successful signup
+    const name = e.target[0].value;
+    const email = e.target[1].value;
+    const password = e.target[2].value;
+
+    // Store new therapist in local storage
+    const therapists = JSON.parse(localStorage.getItem('therapists')) || [];
+    therapists.push({ name, email, password });
+    localStorage.setItem('therapists', JSON.stringify(therapists));
+
+    navigate('/therapist'); // Redirect to therapist page after signup
   };
 
-  const loginForm = (
-    <form onSubmit={handleLogin} className="login-form">
-      <h2>Therapist Login</h2>
-      <input type="email" required placeholder="Enter your email" />
-      <input type="password" required placeholder="Enter your password" />
-      <button type="submit" className="form-button">Login</button>
-      <p>
-        Don't have an account?{' '}
-        <span onClick={() => setIsLogin(false)} className="link1">
-          Sign up here
-        </span>
-      </p>
-    </form>
-  );
-
-  const signupForm = (
-    <form onSubmit={handleSignup} className="signup-form">
-      <h2>Therapist Signup</h2>
-      <input type="text" required placeholder="Enter your name" />
-      <input type="email" required placeholder="Enter your email" />
-      <input type="password" required placeholder="Create a password" />
-      <button type="submit" className="form-button">Create Account</button>
-      <p>
-        Already have an account?{' '}
-        <span onClick={() => setIsLogin(true)} className="link1">
-          Login here
-        </span>
-      </p>
-    </form>
-  );
-
   return (
-    <div className="loginpopup-overlay">
-      <div className="loginpopup">
-        <button className="close-button" onClick={() => setShowLogin(false)}>✖</button>
-        {isLogin ? loginForm : signupForm}
-      </div>
+    <div>
+      <h2>Therapist Login/Signup</h2>
+      <form onSubmit={handleLogin}>
+        <input type="email" placeholder="Email" required />
+        <input type="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+      </form>
+      <h3>Or Signup</h3>
+      <form onSubmit={handleSignup}>
+        <input type="text" placeholder="Name" required />
+        <input type="email" placeholder="Email" required />
+        <input type="password" placeholder="Password" required />
+        <button type="submit">Signup</button>
+      </form>
     </div>
   );
 };
